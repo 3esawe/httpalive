@@ -1,3 +1,3 @@
 # httpalive
 
-compile it with ```g++ -o httpalive httpalive.cpp -lcurl -pthread```
+compile it with ```g++ -o httpalive -fopenmp httpalive.cpp -lcurl```
