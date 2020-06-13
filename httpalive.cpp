@@ -25,6 +25,8 @@ int main(int argc, char const *argv[] )
 	ifstream infile(argv[1]);
 	string line;
 	omp_set_num_threads(NUM_THREADS/2);
+	ofstream out_file;
+	out_file.open("out.txt");
 
 	#pragma omp parallel
 	{
@@ -38,7 +40,7 @@ int main(int argc, char const *argv[] )
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 			curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 0L); 
 			curl_easy_setopt(curl, CURLOPT_TCP_NODELAY, 0L);
-			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 2L);     
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3L);     
 			curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
 			curl_easy_setopt(curl, CURLOPT_COOKIE, "");
 			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -47,19 +49,23 @@ int main(int argc, char const *argv[] )
 			auto res = curl_easy_perform(curl);
 
 
-		if (res == CURLE_OK ) cout << line << endl;
+		if (res == CURLE_OK ) out_file << line << "\n";
 
 		}
 	}
 
 	omp_set_num_threads(NUM_THREADS/2);
 
-	ifstream infile2(argv[1]);
+	infile.close();
+	infile.clear(); 
+	
+	infile.open(argv[1]);
+	
 	#pragma omp parallel
 	{
 	
 
-		for (string line ; getline(infile2, line); ) {
+		for (string line ; getline(infile, line); ) {
 
 			CURL *curl = curl_easy_init();
 			line = "https://" + line ;
@@ -67,7 +73,7 @@ int main(int argc, char const *argv[] )
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 			curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 0L); 
 			curl_easy_setopt(curl, CURLOPT_TCP_NODELAY, 0L);
-			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);     
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3L);     
 			curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
 			curl_easy_setopt(curl, CURLOPT_COOKIE, "");
 			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -75,11 +81,15 @@ int main(int argc, char const *argv[] )
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
 			auto res = curl_easy_perform(curl);
 		
-		if (res == CURLE_OK ) cout << line << endl;
+		if (res == CURLE_OK ) out_file << line << "\n";
 
 		}
 	}
 
-	cout << "Finished proccessing " << endl;
+	infile.close();
+	infile.clear();
+
+	out_file.close();
+
 	return 0;
 }
